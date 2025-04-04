@@ -177,3 +177,59 @@ def radix_gen(arr):
                 yield arr.copy(), k-1, i
         exp *= 10
     yield arr.copy(), -1, -1
+    
+def counting_gen(arr):
+    arr = arr.copy()
+    max_val = max(arr) if arr else 0
+    count = [0] * (max_val + 1)
+    
+    # Etap zliczania
+    for num in arr:
+        count[num] += 1
+        yield arr.copy(), num, -1
+    
+    # Etap przepisywania
+    i = 0
+    for num in range(len(count)):
+        while count[num] > 0:
+            arr[i] = num
+            count[num] -= 1
+            yield arr.copy(), i, num
+            i += 1
+
+def bucket_gen(arr):
+    arr = arr.copy()
+    max_val = max(arr) if arr else 1
+    bucket_count = len(arr)
+    buckets = [[] for _ in range(bucket_count)]
+    
+    # Rozdzielanie do kubełków
+    for num in arr:
+        index = min(num * bucket_count // (max_val + 1), bucket_count - 1)
+        buckets[index].append(num)
+        yield arr.copy(), num, index
+    
+    # Sortowanie kubełków i łączenie
+    i = 0
+    for bucket in buckets:
+        bucket.sort()
+        for num in bucket:
+            arr[i] = num
+            yield arr.copy(), i, num
+            i += 1
+
+def gnome_gen(arr):
+    arr = arr.copy()
+    index = 0
+    while index < len(arr):
+        if index == 0 or arr[index] >= arr[index - 1]:
+            index += 1
+        else:
+            arr[index], arr[index - 1] = arr[index - 1], arr[index]
+            index -= 1
+            yield arr.copy(), index, index + 1
+        yield arr.copy(), index, -1
+    
+    
+    
+    

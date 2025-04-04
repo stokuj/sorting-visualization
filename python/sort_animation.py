@@ -6,7 +6,8 @@ import matplotlib.animation as animation
 from itertools import zip_longest
 from sorting_algorithms import (
     bubble_gen, quick_gen, selection_gen, insertion_gen,
-    merge_gen, heap_gen, shell_gen, cocktail_gen, radix_gen
+    merge_gen, heap_gen, shell_gen, cocktail_gen, radix_gen,
+    counting_gen, bucket_gen, gnome_gen
 )
 
 # Wspólna konfiguracja algorytmów
@@ -64,6 +65,24 @@ ALGORITHM_CONFIG = {
         'color': 'lightcyan',
         'active_color': 'teal',
         'generator': radix_gen
+    },
+    'counting': {
+        'title': 'Counting Sort',
+        'color': 'lightpink',
+        'active_color': 'deeppink',
+        'generator': counting_gen
+    },
+    'bucket': {
+        'title': 'Bucket Sort',
+        'color': 'lightskyblue',
+        'active_color': 'dodgerblue',
+        'generator': bucket_gen
+    },
+    'gnome': {
+        'title': 'Gnome Sort',
+        'color': 'lightgreen',
+        'active_color': 'forestgreen',
+        'generator': gnome_gen
     }
 }
 
@@ -77,7 +96,7 @@ def load_data(data_path):
         return json.load(f)
 
 def create_plot_grid():
-    fig, axs = plt.subplots(3, 3, figsize=(14, 14))
+    fig, axs = plt.subplots(4, 3, figsize=(18, 18))  # 4 wiersze x 3 kolumny
     fig.suptitle('Porównanie algorytmów sortowania', fontsize=16)
     return fig, axs
 
@@ -97,7 +116,7 @@ def create_animation(fig, update_func, init_func, frames, interval):
         blit=False,
         interval=interval,
         repeat=False,
-        cache_frame_data=False
+        cache_frame_data=False,
     )
 
 # Wspólna funkcja dla aktualizacji stanu
@@ -188,11 +207,35 @@ def handle_algorithm_state(algorithm, state, bars):
             if idx == pos:
                 color = ALGORITHM_CONFIG['radix']['active_color']
             bar.set_color(color)
+            
+    elif algorithm == 'counting':
+        _, current_pos, current_val = state
+        for idx, bar in enumerate(bars):
+            color = ALGORITHM_CONFIG['counting']['color']
+            if idx == current_pos or arr[idx] == current_val:
+                color = ALGORITHM_CONFIG['counting']['active_color']
+            bar.set_color(color)
+
+    elif algorithm == 'bucket':
+        _, current_pos, bucket_idx = state
+        for idx, bar in enumerate(bars):
+            color = ALGORITHM_CONFIG['bucket']['color']
+            if idx == current_pos:
+                color = ALGORITHM_CONFIG['bucket']['active_color']
+            bar.set_color(color)
+
+    elif algorithm == 'gnome':
+        _, current_idx, prev_idx = state
+        for idx, bar in enumerate(bars):
+            color = ALGORITHM_CONFIG['gnome']['color']
+            if idx == current_idx or idx == prev_idx:
+                color = ALGORITHM_CONFIG['gnome']['active_color']
+            bar.set_color(color)
 
 
 def run_animations(data_path, save_path, interval=50):
     data = load_data(data_path)
-    datasets = [data.copy() for _ in range(9)]
+    datasets = [data.copy() for _ in range(12)]
     fig, axs = create_plot_grid()
     
     algorithms = [
@@ -204,7 +247,10 @@ def run_animations(data_path, save_path, interval=50):
         {'name': 'heap', 'ax': axs[1,2]},
         {'name': 'shell', 'ax': axs[2,0]},
         {'name': 'cocktail', 'ax': axs[2,1]},
-        {'name': 'radix', 'ax': axs[2,2]}
+        {'name': 'radix', 'ax': axs[2,2]},
+        {'name': 'counting', 'ax': axs[3,0]},
+        {'name': 'bucket', 'ax': axs[3,1]},
+        {'name': 'gnome', 'ax': axs[3,2]}
     ]
 
     bars = []

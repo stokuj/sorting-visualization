@@ -17,7 +17,10 @@ algorithms = [
     'heap', 
     'shell', 
     'cocktail', 
-    'radix'
+    'radix',
+    'counting',
+    'bucket',
+    'gnome',
 ]
 for algo in algorithms:
     run_single_algorithm_animation(
