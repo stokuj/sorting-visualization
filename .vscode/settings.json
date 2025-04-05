@@ -117,6 +117,17 @@
     "thread": "cpp",
     "cinttypes": "cpp",
     "typeinfo": "cpp",
-    "variant": "cpp"
+    "variant": "cpp",
+    "codecvt": "cpp",
+    "complex": "cpp",
+    "cstring": "cpp",
+    "forward_list": "cpp",
+    "list": "cpp",
+    "map": "cpp",
+    "set": "cpp",
+    "unordered_set": "cpp",
+    "fstream": "cpp",
+    "typeindex": "cpp",
+    "valarray": "cpp"
   }
 }
