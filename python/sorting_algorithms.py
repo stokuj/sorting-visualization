@@ -1,4 +1,5 @@
 # sorting_algorithms.py
+import random
 
 def bubble_gen(arr):
     arr = arr.copy()
@@ -13,14 +14,40 @@ def bubble_gen(arr):
         if not swapped:
             break
 
-def quick_gen(arr):
+def quick_gen(arr, pivot_method):
+    print(f'Pivot test: {pivot_method}')
+    
     arr = arr.copy()
     stack = [(0, len(arr)-1)]
     while stack:
         low, high = stack.pop()
         if low >= high:
             continue
+        
+        # Wybór pivota w zależności od metody
+        if pivot_method == 'random':
+            # Losowy pivot i zamiana z ostatnim elementem
+            pivot_idx = random.randint(low, high)
+            arr[pivot_idx], arr[high] = arr[high], arr[pivot_idx]
+            yield arr.copy(), low, high, arr[high], [pivot_idx, high]
+        
+        elif pivot_method == 'median_of_three':
+            # Mediana z trzech: first, middle, last
+            mid = (low + high) // 2
+            candidates = [(arr[low], low), (arr[mid], mid), (arr[high], high)]
+            candidates.sort()
+            pivot_val, pivot_idx = candidates[1]  # mediana
+            
+            print(arr.index(arr[-1]))
+            print(pivot_val)
+            arr[pivot_idx], arr[high] = arr[high], pivot_val
+            yield arr.copy(), low, high, arr[high], [pivot_idx, high]
+        
+        else:  # domyślnie ostatni element (bez zamiany)
+            pass 
+        
         pivot = arr[high]
+        
         i = low - 1
         yield arr.copy(), low, high, pivot, []
         for j in range(low, high):

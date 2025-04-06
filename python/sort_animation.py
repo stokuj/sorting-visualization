@@ -1,5 +1,5 @@
 # sort_animation.py
-
+import time
 import json
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -233,7 +233,7 @@ def handle_algorithm_state(algorithm, state, bars):
             bar.set_color(color)
 
 
-def run_animations(data_path, save_path, interval=50):
+def run_animations(data_path, save_path, interval, pivot_method=None):
     data = load_data(data_path)
     datasets = [data.copy() for _ in range(12)]
     fig, axs = create_plot_grid()
@@ -263,14 +263,31 @@ def run_animations(data_path, save_path, interval=50):
         for idx, (algo, dataset) in enumerate(zip(algorithms, datasets)):
             handle_algorithm_state(algo['name'], frame[idx], bars[idx])
         return [bar for sublist in bars for bar in sublist]
-
-    frames = zip_longest(*[ALGORITHM_CONFIG[algo['name']]['generator'](dataset) for algo, dataset in zip(algorithms, datasets)])
+    # if True:
+    #     frames = zip_longest(*[ALGORITHM_CONFIG[algo['name']]['generator'](dataset) for algo, dataset in zip(algorithms, datasets)])
+    # else:
+    #     frames = zip_longest(*[ALGORITHM_CONFIG[algo['name']]['generator'](dataset, pivot_method) for algo, dataset in zip(algorithms, datasets)])
     
+    generators = []
+    for algo, dataset in zip(algorithms, datasets):
+        if algo['name'] == 'quick':
+            # Dla QuickSort przekazujemy pivot_method
+            gen = ALGORITHM_CONFIG['quick']['generator'](dataset, pivot_method=pivot_method)
+        else:
+            # Dla innych algorytmów nie przekazujemy parametru
+            gen = ALGORITHM_CONFIG[algo['name']]['generator'](dataset)
+        generators.append(gen)
+
+    frames = zip_longest(*generators)
+        
     ani = create_animation(fig, update, lambda: init_bars([bar for sublist in bars for bar in sublist], None), frames, interval)
-    ani.save(save_path, writer='pillow', fps=60)
+    ani.save(save_path, writer='pillow', fps=2)
     plt.close(fig)
 
-def run_single_algorithm_animation(data_path, save_path, algorithm_name, interval=50):
+def run_single_algorithm_animation(data_path, save_path, algorithm_name, interval, pivot_method=None):
+    if(pivot_method):
+        print(f'Pivot method: {pivot_method}')
+        
     if algorithm_name not in ALGORITHM_CONFIG:
         raise ValueError(f"Nieznany algorytm: {algorithm_name}")
 
@@ -281,7 +298,7 @@ def run_single_algorithm_animation(data_path, save_path, algorithm_name, interva
     setup_algorithm_axes(ax, config['title'], config['color'], len(data))
     bars = ax.bar(range(len(data)), data, align='edge', color=config['color'])
     
-    generator = config['generator'](data.copy())
+    generator = config['generator'](data.copy(),pivot_method) if algorithm_name == 'quick' else config['generator'](data.copy())
 
     def update(frame):
         state = next(generator, None)
@@ -290,5 +307,5 @@ def run_single_algorithm_animation(data_path, save_path, algorithm_name, interva
         return bars
 
     ani = create_animation(fig, update, lambda: init_bars(bars, config['color']), generator, interval)
-    ani.save(save_path, writer='pillow', fps=60)
+    ani.save(save_path, writer='pillow', fps=2)
     plt.close(fig)
