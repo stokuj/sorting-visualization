@@ -38,8 +38,6 @@ def quick_gen(arr, pivot_method):
             candidates.sort()
             pivot_val, pivot_idx = candidates[1]  # mediana
             
-            print(arr.index(arr[-1]))
-            print(pivot_val)
             arr[pivot_idx], arr[high] = arr[high], pivot_val
             yield arr.copy(), low, high, arr[high], [pivot_idx, high]
         
